@@ -12,22 +12,26 @@ class Autoloader {
 
     static private function autoload($className) : void {
         $filepath = __DIR__.DIRECTORY_SEPARATOR. str_replace('\\', '/', $className) . '.php';
+        $list_dirsname = self::DIRSNAME;
 
         if (file_exists($filepath)) {
             include_once $filepath;
-        } else {
+
+        } elseif (!empty($list_dirsname)) {
             $filename = $className . '.php';
 
-            foreach (self::DIRSNAME as $dirname) {
+            foreach ($list_dirsname as $dirname) {
                 if (self::load_file($dirname, $filename)) {
                     break;
                 }
             }
+        } else {
+            throw new Exception("File '{$className}.php' not found");
         }
     }
 
     static private function load_file($dirname, $filename) : bool {
-        foreach (scandir($dirname) as $file) {
+        foreach (scandir(__DIR__.DIRECTORY_SEPARATOR.$dirname) as $file) {
             $filepath = realpath($dirname.DIRECTORY_SEPARATOR.$file);
 
             if (is_file($filepath) && $file == $filename) {
